@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.*;
@@ -38,14 +39,14 @@ class MarcoCliente extends JFrame{
 	
 }
 
-class LaminaMarcoCliente extends JPanel{
+class LaminaMarcoCliente extends JPanel implements Runnable{
 	
 	public LaminaMarcoCliente(){
 
 		name= new JTextField(5);
 		add(name);
 	
-		JLabel texto=new JLabel(" CHAT CLIENTE");
+		JLabel texto=new JLabel(" CHAT ");
 		add(texto);
 
 		ip= new JTextField(8);
@@ -65,6 +66,12 @@ class LaminaMarcoCliente extends JPanel{
 		
 		add(miboton);	
 		
+		Thread mihilo= new Thread(this);
+		mihilo.start();
+
+
+
+		
 	}
 	
 	private class EnviaTexto implements ActionListener{
@@ -74,9 +81,10 @@ class LaminaMarcoCliente extends JPanel{
 			// TODO Auto-generated method stub
 			
 			//System.out.println ("Hola funciona");
+			campochat.append("\n"+ campo1.getText());
 
 			try {
-				Socket misocket= new Socket("192.168.100.16", 5000);
+				Socket misocket= new Socket("192.168.100.16", 5000); //Esta ip es respecto a la PC que se quiera usar.
 				
 				EnvioCompleto datos= new EnvioCompleto();
 				datos.setName(name.getText());
@@ -110,6 +118,36 @@ class LaminaMarcoCliente extends JPanel{
 	private JTextArea campochat;
 	
 	private JButton miboton;
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+
+		try {
+			ServerSocket servidor_cliente= new ServerSocket(5020);
+
+			Socket cliente;
+			EnvioCompleto paqueteRecibido;
+		
+			
+			while(true){
+				cliente= servidor_cliente.accept();
+
+				ObjectInputStream flujoentrada= new ObjectInputStream(cliente.getInputStream());
+				paqueteRecibido= (EnvioCompleto) flujoentrada.readObject();
+
+				campochat.append("\n" + paqueteRecibido.getName()+ ": "+ paqueteRecibido.getMensaje());
+
+
+			}
+
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+
+	}
 	
 }
 

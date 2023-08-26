@@ -95,7 +95,7 @@ class MarcoServidor extends JFrame implements Runnable{
         paqueteReenvio.writeObject(paqueteReenvio); 
         paqueteReenvio.close(); 
         enviaDestinatario.close(); 
- 
+
         misocket.close(); 
  
       } 
